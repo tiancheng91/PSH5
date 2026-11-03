@@ -8,6 +8,7 @@ VERSIONS_FILE = ".github/payload-versions.json"
 VER_CONSTS = {
     "blackbox": "BLACKBOX_VER",
     "CheatRunner": "CHEATRUNNER_VER",
+    "ShadowMountPlus": "SHADOWMOUNT_VER",
     "PS5SX2": "EMU_PS5SX2_VER",
     "snes9x": "EMU_SNES9X_VER",
     "XPSemu": "EMU_XPSEMU_VER",
@@ -315,6 +316,7 @@ def update_emu_versioned_dir(key, repo, asset_pat, dest_dir, glob_pat, path_cons
 
 update_fixed_gh("np-fake-signin", "earthonion/np-fake-signin",  r"np-fake-signin-ps5\.elf$",  "np-fake-signin-ps5.elf")
 update_fixed_gh("CheatRunner",    "notmaj0r/CheatRunner",        r"CheatRunner\.elf$",         "CheatRunner.elf")
+update_fixed_gh("ShadowMountPlus", "drakmor/ShadowMountPlus",   r"^shadowmountplus\.elf$",    "shadowmountplus.elf")
 update_fixed_gh("blackbox",       "D3ATHLY/blackbox",            r"^blackbox\.elf$",           "blackbox.elf")
 update_fixed_gh("blackbox_ffpkg", "D3ATHLY/blackbox",            r"^PPSA01453\.ffpkg$",        "PPSA01453.ffpkg")
 update_versioned_gh("webkit-autoloader", "itsPLK/ps5-webkit-autoloader", r"webkit-autoloader-installer_v.*.elf$", "webkit-autoloader-installer_v*.elf", "AUTOLOADER_ELF")
