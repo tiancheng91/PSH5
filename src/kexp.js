@@ -102,23 +102,18 @@ const ONION_EMU_TITLE_IDS = [
   HB_SX2, HB_SX3, HB_SNES, HB_XPS, HB_X360, HB_PORPOISE, HB_CEMU, HB_EDEN, HB_RA,
   HB_SWAN,
 ];
-// OnionHEN jailbreaks every emu title ID. Keep one resident Lapy
-// (PS5SXHelper aio) after HEN/pldmgr/shadow. Do not autoload
-// xpsemu-helper or sandbox-elevator: both also grab elfldr 9021, so
-// the next emu cannot elevate after you close the first. Those ELFs
-// still save to /data/ps5_autoloader for Payload Manager. CEMU ships
-// its own elevator and sends it itself. Large ELFs last so they
-// cannot stall 8084.
+// Minimal autoload: keep HEN and Payload Manager. Optional entries stay
+// in their original order; uncomment an entry AND its save/install calls below.
 const AUTOLOAD_NAMES = [
-  BYEPERVISOR_ELF,
-  "OnionHEN.elf",
-  PLDMGR_ELF,
-  FAKE_SIGNIN_ELF,
-  "PS5SXHelper.elf",
-  ANYPAD_ELF,
-  CHEATRUNNER_ELF,
-  BLACKBOX_ELF,
-  "shadowmountplus.elf",
+  // BYEPERVISOR_ELF, // Hypervisor-related patches.
+  "OnionHEN.elf", // Homebrew support (includes FTP).
+  PLDMGR_ELF, // Payload Manager: manual payload loading.
+  // FAKE_SIGNIN_ELF, // Local fake PSN sign-in.
+  // "PS5SXHelper.elf", // Resident emulator elevation helper.
+  // ANYPAD_ELF, // Additional controller support.
+  // CHEATRUNNER_ELF, // Cheat support.
+  // BLACKBOX_ELF, // Blackbox homebrew utility.
+  // "shadowmountplus.elf", // Game image mounting support.
 ];
 const INSTALL_TOAST = "Leave the Autoloader page open until it finishes - do not reboot yet";
 const ONION_WAIT_S = 10;
@@ -1769,99 +1764,101 @@ export async function loadOptionalPayloads(p, chain, log) {
   for (let _i = 0; _i < AUTOLOAD_NAMES.length; _i++) {
     if (await pathExists(p, chain, AUTOLOADER_DIR + "/" + AUTOLOAD_NAMES[_i])) _present.add(AUTOLOAD_NAMES[_i]);
   }
-  await saveOnly("OnionHEN.elf",  "onion",    p, chain, log, _present.has("OnionHEN.elf"), ONIONHEN_VER);
-  await saveOnly(FAKE_SIGNIN_ELF,  "signin",   p, chain, log, _present.has(FAKE_SIGNIN_ELF));
-  await saveOnly(PLDMGR_ELF,       "pld",      p, chain, log, _present.has(PLDMGR_ELF));
-  await saveOnly(BLACKBOX_ELF,     "blackbox", p, chain, log, _present.has(BLACKBOX_ELF), BLACKBOX_VER);
-  await saveOnly(CHEATRUNNER_ELF,  "cheat",    p, chain, log, _present.has(CHEATRUNNER_ELF), CHEATRUNNER_VER);
-  await saveOnly(ANYPAD_ELF,       "anypad",   p, chain, log, _present.has(ANYPAD_ELF));
-  await saveOnly(BYEPERVISOR_ELF,  "byepervisor",  p, chain, log, _present.has(BYEPERVISOR_ELF));
-  await saveOnly("shadowmountplus.elf", "shadowmount", p, chain, log, _present.has("shadowmountplus.elf"), SHADOWMOUNT_VER);
+  await saveOnly("OnionHEN.elf",  "onion",    p, chain, log, _present.has("OnionHEN.elf"), ONIONHEN_VER); // Homebrew and FTP.
+  // Optional module saves and emulator installation disabled for minimal loading.
+  // await saveOnly(FAKE_SIGNIN_ELF,  "signin",   p, chain, log, _present.has(FAKE_SIGNIN_ELF)); // Local fake PSN sign-in.
+  await saveOnly(PLDMGR_ELF,       "pld",      p, chain, log, _present.has(PLDMGR_ELF)); // Payload Manager: manual payload loading.
+  // await saveOnly(BLACKBOX_ELF,     "blackbox", p, chain, log, _present.has(BLACKBOX_ELF), BLACKBOX_VER); // Blackbox homebrew utility.
+  // await saveOnly(CHEATRUNNER_ELF,  "cheat",    p, chain, log, _present.has(CHEATRUNNER_ELF), CHEATRUNNER_VER); // Cheat support.
+  // await saveOnly(ANYPAD_ELF,       "anypad",   p, chain, log, _present.has(ANYPAD_ELF)); // Additional controller support.
+  // await saveOnly(BYEPERVISOR_ELF,  "byepervisor",  p, chain, log, _present.has(BYEPERVISOR_ELF)); // Hypervisor-related patches.
+  // await saveOnly("shadowmountplus.elf", "shadowmount", p, chain, log, _present.has("shadowmountplus.elf"), SHADOWMOUNT_VER); // Game image mounting support.
 
-  await ensureOnionTitleIds(p, chain, log);
+  // await ensureOnionTitleIds(p, chain, log);
 
-  await ensureDir(p, chain, HOMEBREW_DIR);
-  const _pkgPresent = await pathExists(p, chain, HOMEBREW_DIR + "/" + BLACKBOX_PKG);
-  await saveFile(HOMEBREW_DIR, BLACKBOX_PKG, BLACKBOX_VER, p, chain, log, _pkgPresent);
+  // await ensureDir(p, chain, HOMEBREW_DIR);
+  // const _pkgPresent = await pathExists(p, chain, HOMEBREW_DIR + "/" + BLACKBOX_PKG);
+  // await saveFile(HOMEBREW_DIR, BLACKBOX_PKG, BLACKBOX_VER, p, chain, log, _pkgPresent);
 
-  // Emulators — unzip/install before the autoloader installer, which may
-  // close WebKit. Skip only when eboot.bin is actually on disk.
-  await ensureDir(p, chain, HOMEBREW_DIR);
-  await ensureEmuDataDirs(p, chain, log);
+  // // Emulators — unzip/install before the autoloader installer, which may
+  // // close WebKit. Skip only when eboot.bin is actually on disk.
+  // await ensureDir(p, chain, HOMEBREW_DIR);
+  // await ensureEmuDataDirs(p, chain, log);
 
-  // PS5SX2 (PS2) — copy the title from the release zip; aio helper autoloads.
-  await downloadToHB(EMU_PS5SX2_HELPER, "PS5SXHelper.elf", EMU_PS5SX2_VER, p, chain, log);
-  await saveAutoloadElf(EMU_PS5SX2_HELPER, "PS5SXHelper.elf", EMU_PS5SX2_VER, p, chain, log);
-  await installSx2Title(p, chain, log);
-  // PS5SX3 (PS3) — copy the title from the server; installer ELF handles PS3 specifics.
-  await downloadToHB(EMU_PS5SX3_HELPER, "PS5SX3Helper.elf", EMU_PS5SX3_VER, p, chain, log);
-  await installSx3Title(p, chain, log);
-  await installPs2Bios(p, chain, log);
+  // // PS5SX2 (PS2) — copy the title from the release zip; aio helper autoloads.
+  // await downloadToHB(EMU_PS5SX2_HELPER, "PS5SXHelper.elf", EMU_PS5SX2_VER, p, chain, log);
+  // await saveAutoloadElf(EMU_PS5SX2_HELPER, "PS5SXHelper.elf", EMU_PS5SX2_VER, p, chain, log);
+  // await installSx2Title(p, chain, log);
+  // // PS5SX3 (PS3) — copy the title from the server; installer ELF handles PS3 specifics.
+  // await downloadToHB(EMU_PS5SX3_HELPER, "PS5SX3Helper.elf", EMU_PS5SX3_VER, p, chain, log);
+  // await installSx3Title(p, chain, log);
+  // await installPs2Bios(p, chain, log);
 
-  // snes9x — the ELF is the installer and helper. Do not autoload the 25MB
-  // file; the app respawns its helper through 9021 after install.
-  {
-    const snesEboot = HOMEBREW_DIR + "/" + HB_SNES + "/eboot.bin";
-    if (await pathExists(p, chain, snesEboot)) {
-      log("snes9x already installed, skipping installer");
-    } else {
-      try {
-        await sendOneRetry(EMU_SNES9X_ELF, p, chain, log, 3);
-        await waitSeconds(log, "waiting for snes9x installer", 25, null);
-        if (!(await pathExists(p, chain, snesEboot)))
-          log("snes9x installer sent, eboot.bin not found yet");
-      } catch (_e) {
-        log("snes9x installer skipped: " + (_e && _e.message ? _e.message : String(_e)));
-      }
-    }
-  }
+  // // snes9x — the ELF is the installer and helper. Do not autoload the 25MB
+  // // file; the app respawns its helper through 9021 after install.
+  // {
+  //   const snesEboot = HOMEBREW_DIR + "/" + HB_SNES + "/eboot.bin";
+  //   if (await pathExists(p, chain, snesEboot)) {
+  //     log("snes9x already installed, skipping installer");
+  //   } else {
+  //     try {
+  //       await sendOneRetry(EMU_SNES9X_ELF, p, chain, log, 3);
+  //       await waitSeconds(log, "waiting for snes9x installer", 25, null);
+  //       if (!(await pathExists(p, chain, snesEboot)))
+  //         log("snes9x installer sent, eboot.bin not found yet");
+  //     } catch (_e) {
+  //       log("snes9x installer skipped: " + (_e && _e.message ? _e.message : String(_e)));
+  //     }
+  //   }
+  // }
 
-  // XPSemu — unzip the title folder, autoload helper, whitelist the title.
-  await installXpsTitle(p, chain, log);
-  await saveAutoloadElf(EMU_XPSEMU_HELPER, XPSEMU_HELPER_DEST, EMU_XPSEMU_VER, p, chain, log);
-  await ensureXpsWhitelist(p, chain, log);
-  await installXpsBios(p, chain, log);
+  // // XPSemu — unzip the title folder, autoload helper, whitelist the title.
+  // await installXpsTitle(p, chain, log);
+  // await saveAutoloadElf(EMU_XPSEMU_HELPER, XPSEMU_HELPER_DEST, EMU_XPSEMU_VER, p, chain, log);
+  // await ensureXpsWhitelist(p, chain, log);
+  // await installXpsBios(p, chain, log);
 
-  await installZipEmu(EMU_PORPOISE_ZIP, HB_PORPOISE, EMU_PORPOISE_VER, p, chain, log);
+  // await installZipEmu(EMU_PORPOISE_ZIP, HB_PORPOISE, EMU_PORPOISE_VER, p, chain, log);
 
-  await installZipEmu(EMU_PS5CEMU_ZIP, HB_CEMU, EMU_PS5CEMU_VER, p, chain, log);
-  await saveAutoloadElf(EMU_PS5CEMU_ELEVATOR, "sandbox-elevator.elf", null, p, chain, log);
-  await installNamedFile(EMU_PS5CEMU_ELEVATOR, HOMEBREW_DIR + "/" + HB_CEMU, "sandbox-elevator.elf", p, chain, log);
-  await installCemuKeys(p, chain, log);
+  // await installZipEmu(EMU_PS5CEMU_ZIP, HB_CEMU, EMU_PS5CEMU_VER, p, chain, log);
+  // await saveAutoloadElf(EMU_PS5CEMU_ELEVATOR, "sandbox-elevator.elf", null, p, chain, log);
+  // await installNamedFile(EMU_PS5CEMU_ELEVATOR, HOMEBREW_DIR + "/" + HB_CEMU, "sandbox-elevator.elf", p, chain, log);
+  // await installCemuKeys(p, chain, log);
 
-  // PS5X360 — unzip (not AutoLog.elf) and fix 0600 zip permissions.
-  await installZipEmu(EMU_PS5X360_ZIP, HB_X360, EMU_PS5X360_VER, p, chain, log);
-  await ensureDir(p, chain, HOMEBREW_DIR + "/" + HB_X360);
-  await ensureDir(p, chain, HOMEBREW_DIR + "/" + HB_X360 + "/assets");
-  await ensureDir(p, chain, HOMEBREW_DIR + "/" + HB_X360 + "/assets/roms");
-  await chmodPath(p, chain, HOMEBREW_DIR + "/" + HB_X360 + "/assets/roms");
+  // // PS5X360 — unzip (not AutoLog.elf) and fix 0600 zip permissions.
+  // await installZipEmu(EMU_PS5X360_ZIP, HB_X360, EMU_PS5X360_VER, p, chain, log);
+  // await ensureDir(p, chain, HOMEBREW_DIR + "/" + HB_X360);
+  // await ensureDir(p, chain, HOMEBREW_DIR + "/" + HB_X360 + "/assets");
+  // await ensureDir(p, chain, HOMEBREW_DIR + "/" + HB_X360 + "/assets/roms");
+  // await chmodPath(p, chain, HOMEBREW_DIR + "/" + HB_X360 + "/assets/roms");
 
-  await installZipEmu(EMU_PROSPEROEDEN_ZIP, HB_EDEN, EMU_PROSPEROEDEN_VER, p, chain, log);
-  await installEdenKeys(p, chain, log);
-  await installEdenFirmware(p, chain, log);
+  // await installZipEmu(EMU_PROSPEROEDEN_ZIP, HB_EDEN, EMU_PROSPEROEDEN_VER, p, chain, log);
+  // await installEdenKeys(p, chain, log);
+  // await installEdenFirmware(p, chain, log);
 
 
-  await installSwanStationTitle(p, chain, log);
+  // await installSwanStationTitle(p, chain, log);
 
-  await installRaTitle(p, chain, log);
+  // await installRaTitle(p, chain, log);
 
-  // Emulator checklist — shows which titles have eboot.bin on disk
-  try {
-    const _cl = [
-      ["PS5SX2", HB_SX2], ["PS5SX3", HB_SX3], ["snes9x", HB_SNES], ["XPS", HB_XPS],
-      ["Porpoise", HB_PORPOISE], ["CEMU", HB_CEMU], ["X360", HB_X360], ["Eden", HB_EDEN],
-      ["RetroArch", HB_RA],
-      ["SwanStation", HB_SWAN],
-    ];
-    const _marks = [];
-    for (let _ci = 0; _ci < _cl.length; _ci++) {
-      const _ok = await pathExists(p, chain, HOMEBREW_DIR + "/" + _cl[_ci][1] + "/eboot.bin");
-      _marks.push((_ok ? "[ok]" : "[!!]") + " " + _cl[_ci][0]);
-    }
-    log("emus: " + _marks.join("  "), "info");
-    for (let _ci = 0; _ci < _cl.length; _ci++)
-      await chmodHomebrewTitle(p, chain, _cl[_ci][1]);
-  } catch (_) {}
+  // // Emulator checklist — shows which titles have eboot.bin on disk
+  // try {
+  //   const _cl = [
+  //     ["PS5SX2", HB_SX2], ["PS5SX3", HB_SX3], ["snes9x", HB_SNES], ["XPS", HB_XPS],
+  //     ["Porpoise", HB_PORPOISE], ["CEMU", HB_CEMU], ["X360", HB_X360], ["Eden", HB_EDEN],
+  //     ["RetroArch", HB_RA],
+  //     ["SwanStation", HB_SWAN],
+  //   ];
+  //   const _marks = [];
+  //   for (let _ci = 0; _ci < _cl.length; _ci++) {
+  //     const _ok = await pathExists(p, chain, HOMEBREW_DIR + "/" + _cl[_ci][1] + "/eboot.bin");
+  //     _marks.push((_ok ? "[ok]" : "[!!]") + " " + _cl[_ci][0]);
+  //   }
+  //   log("emus: " + _marks.join("  "), "info");
+  //   for (let _ci = 0; _ci < _cl.length; _ci++)
+  //     await chmodHomebrewTitle(p, chain, _cl[_ci][1]);
+  // } catch (_) {}
+
 
   try { await saveAutoloadFiles(p, chain, log, {}); log("autoload.txt rebuilt"); } catch (_err) { log("autoload.txt rebuild failed: " + (_err && _err.message ? _err.message : String(_err))); }
 

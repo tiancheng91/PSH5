@@ -5,9 +5,10 @@ Supported firmware: 7.00 through 13.60.
 - In the network settings, set Primary DNS to `45.56.67.85` (Recommended)
 - Run `python serve.py` locally, or open https://ntfargo.github.io/Relapse-Exploit/ on the PS5.
 - The default payloads are stored in `payloads/` after a successful run, the ELF loader listens on port `9021`.
-- After elfldr starts on port `9021`, the host auto-sends `payloads/np-fake-signin-ps5.elf` (no wait), then `payloads/OnionHEN.elf` (5s), then Instant Payload Manager `payloads/pldmgr_v0.5.2-r2.elf` (5s), then `payloads/webkit-autoloader-installer_v0.5.2.elf` (5s). `payloads/shadowmountplus.elf` is saved into `/data/ps5_autoloader` and sent after reboot, so it does not run while User Guide is open. Do not send kstuff/etaHEN first. Payload Manager is then at `http://<PS5>:8084`. Settings Autoload Delay includes Instant.
-- OnionHEN auto-starts a built-in FTP server on TCP `1337`.
-- Leave `http://127.0.0.1:18181/` open until the Autoloader install finishes, then reboot and open **WebKit Autoloader**. The Internet Browser PKG is kept.
+- Minimal default autoload keeps only OnionHEN (homebrew and FTP on TCP `1337`) and Payload Manager (manual payload loading). The WebKit Autoloader installer runs last.
+- Optional modules and emulator installation calls are commented out in `src/kexp.js`, in their original order. To enable a module, uncomment its save/install calls and its `AUTOLOAD_NAMES` entry where applicable. Existing optional files are kept, but excluded from the rebuilt autoload list.
+- The Python server listens only on `127.0.0.1:8000`, so other devices cannot connect directly. `local_ip()` can detect a `192.168.*` address on Linux and falls back to loopback; it does not change the listener.
+- Leave the Autoloader page open until installation finishes, then reboot and open **WebKit Autoloader**.
 
 ## Stability notes
 Webkit may need several attempts, reload the page if the browser stalls. The kernel exploit may hang or panic the console, so reboot before trying again if that happens.
