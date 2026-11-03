@@ -29,7 +29,7 @@ const XPSEMU_HELPER_DEST = "xpsemu-helper.elf";
 // Payload versions — updated by GitHub Actions when a new release is downloaded.
 const BLACKBOX_VER = "1.12.5";
 const CHEATRUNNER_VER = "v0.18";
-const SHADOWMOUNT_VER = "1.7-sm";
+const SHADOWMOUNT_VER = "1.7beta11";
 const HOMEBREW_DIR = "/data/homebrew";
 const BLACKBOX_PKG = "PPSA01453.ffpkg";
 const ONIONHEN_CONFIG = "/data/OnionHEN/config.ini";
@@ -113,7 +113,7 @@ const AUTOLOAD_NAMES = [
   // ANYPAD_ELF, // Additional controller support.
   // CHEATRUNNER_ELF, // Cheat support.
   // BLACKBOX_ELF, // Blackbox homebrew utility.
-  // "shadowmountplus.elf", // Game image mounting support.
+  "shadowmountplus.elf", // Game image mounting support.
 ];
 const INSTALL_TOAST = "Leave the Autoloader page open until it finishes - do not reboot yet";
 const ONION_WAIT_S = 10;
@@ -1772,7 +1772,7 @@ export async function loadOptionalPayloads(p, chain, log) {
   // await saveOnly(CHEATRUNNER_ELF,  "cheat",    p, chain, log, _present.has(CHEATRUNNER_ELF), CHEATRUNNER_VER); // Cheat support.
   // await saveOnly(ANYPAD_ELF,       "anypad",   p, chain, log, _present.has(ANYPAD_ELF)); // Additional controller support.
   // await saveOnly(BYEPERVISOR_ELF,  "byepervisor",  p, chain, log, _present.has(BYEPERVISOR_ELF)); // Hypervisor-related patches.
-  // await saveOnly("shadowmountplus.elf", "shadowmount", p, chain, log, _present.has("shadowmountplus.elf"), SHADOWMOUNT_VER); // Game image mounting support.
+  await saveOnly("shadowmountplus.elf", "shadowmount", p, chain, log, _present.has("shadowmountplus.elf"), SHADOWMOUNT_VER); // Game image mounting support.
 
   // await ensureOnionTitleIds(p, chain, log);
 
