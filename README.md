@@ -5,7 +5,7 @@ Supported firmware: 7.00 through 13.60.
 - In the network settings, set Primary DNS to `45.56.67.85` (Recommended)
 - Run `python serve.py` locally, or open https://ntfargo.github.io/Relapse-Exploit/ on the PS5.
 - The default payloads are stored in `payloads/` after a successful run, the ELF loader listens on port `9021`.
-- Minimal default autoload keeps only OnionHEN (homebrew and FTP on TCP `1337`) and Payload Manager (manual payload loading). The WebKit Autoloader installer runs last.
+- Minimal default autoload keeps only OnionHEN (homebrew and FTP on TCP `1337`) and Payload Manager (manual payload loading). Fake Sign-in is available for manual loading when needed; reboot after running it. The WebKit Autoloader installer runs last.
 - Optional modules and emulator installation calls are commented out in `src/kexp.js`, in their original order. To enable a module, uncomment its save/install calls and its `AUTOLOAD_NAMES` entry where applicable. Existing optional files are kept, but excluded from the rebuilt autoload list.
 - The Python server listens only on `127.0.0.1:8000`, so other devices cannot connect directly. `local_ip()` can detect a `192.168.*` address on Linux and falls back to loopback; it does not change the listener.
 - Leave the Autoloader page open until installation finishes, then reboot and open **WebKit Autoloader**.

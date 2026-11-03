@@ -108,7 +108,7 @@ const AUTOLOAD_NAMES = [
   // BYEPERVISOR_ELF, // Hypervisor-related patches.
   "OnionHEN.elf", // Homebrew support (includes FTP).
   PLDMGR_ELF, // Payload Manager: manual payload loading.
-  // FAKE_SIGNIN_ELF, // Local fake PSN sign-in.
+  // FAKE_SIGNIN_ELF, // Local fake PSN sign-in; load manually when needed.
   // "PS5SXHelper.elf", // Resident emulator elevation helper.
   // ANYPAD_ELF, // Additional controller support.
   // CHEATRUNNER_ELF, // Cheat support.

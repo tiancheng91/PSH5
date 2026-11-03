@@ -13,7 +13,7 @@
 | Byepervisor / `byepervisor.elf` | 常量 `v1`；更新记录未登记 | Hypervisor 相关补丁 | 关闭 | 即使取消候选项注释，`saveAutoloadFiles()` 仍会从最终列表过滤此项；不能仅靠取消注释启用。固件适配和与其他补丁的组合需单独确认。 |
 | OnionHEN / `OnionHEN.elf` | 常量 `v0.0.14-r8` | Homebrew 支持，含 FTP 服务 | 开启 | FTP 使用 TCP `1337`；避免与其他占用同端口的 FTP 服务同时启动。自动加载后等待 10 秒再加载后续项。未验证与其他 HEN 并用。 |
 | Payload Manager / `pldmgr_v0.5.2-r2.elf` | 文件名 `v0.5.2-r2` | 管理及手动加载 payload | 开启 | 管理页面端口按原仓库说明为 `8084`；依赖 ELF 加载流程。大 ELF 的发送可能拖慢管理服务响应。 |
-| Fake Sign-in / `np-fake-signin-ps5.elf` | 更新记录 `1.1` | 本地模拟 PSN 登录状态 | 关闭 | 不等于连接或通过真实 PSN 认证；仓库未记录确定的组件互斥关系。 |
+| Fake Sign-in / `np-fake-signin-ps5.elf` | 更新记录 `1.1` | 本地模拟 PSN 登录状态 | 关闭，按需手动加载 | 上游要求账号已离线激活且 Account ID 非零；执行后重启，通常无需每次开机加载。作用于当前前台用户，不等于真实 PSN 登录，也不能替代离线激活。参见[上游说明](https://github.com/earthonion/np-fake-signin)。 |
 | PS5SXHelper / `emulators/PS5SX2/PS5SXHelper.elf` | 代码 `vk-285-177`；更新记录 `vk-285-182` | 模拟器常驻提权辅助，保存为 `PS5SXHelper.elf` | 关闭 | 原代码注释要求仅保留一个常驻 Lapy 辅助模块；见下文 `9021` 端口说明。启用时需同时恢复下载、保存调用。 |
 | AnyPad | 代码路径 `AnyPad-PS5-0.9.1-beta.elf`；更新记录 `v0.9.5-beta` | 扩展手柄支持 | 关闭 | 配置引用的 `0.9.1` 文件不存在；仓库存在 `0.6.0`、`0.9.5` 文件。启用前先统一文件路径和版本。未确认硬互斥关系。 |
 | CheatRunner / `CheatRunner.elf` | 代码与更新记录 `v0.18` | 作弊功能支持 | 关闭 | 与目标游戏及其他补丁的兼容性需实机确认；仓库未记录确定的硬互斥关系。 |
